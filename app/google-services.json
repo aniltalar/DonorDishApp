@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "50745213497",
+    "project_id": "donordish-6a4c9",
+    "storage_bucket": "donordish-6a4c9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50745213497:android:4b50244f52ea4fc72243e8",
+        "android_client_info": {
+          "package_name": "com.aniltalariS3175001.fooddonation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDts8f5cR9_vAQ9o1AFROUKVonP0sedZuc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
