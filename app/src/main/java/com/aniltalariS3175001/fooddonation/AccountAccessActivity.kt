@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aniltalariS3175001.fooddonation.fragments.TutorialActivity
 import com.google.firebase.database.FirebaseDatabase
 
 class AccountAccessActivity : ComponentActivity() {
@@ -52,6 +53,8 @@ class AccountAccessActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 @Composable
 fun AccountAccessActivityScreen() {
@@ -261,9 +264,12 @@ private fun validateCredentials(userPassword: String, donorData: DonorData, cont
         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
         DonorDetails.saveDonorStatus(context, true)
         DonorDetails.saveDonorEmail(context, donorData.donorEmail)
-        context.startActivity(Intent(context, ContainerActivity::class.java))
+        DonorDetails.isFirstLogin=true
+        context.startActivity(Intent(context, TutorialActivity::class.java))
         context.finish()
     } else {
         Toast.makeText(context, "Incorrect Credentials", Toast.LENGTH_SHORT).show()
     }
 }
+
+

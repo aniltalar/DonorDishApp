@@ -89,7 +89,7 @@ fun IntroScreenD() {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
         Text(
             text = "Welcome to\nAnil Talari DonorDish App",
             style = MaterialTheme.typography.headlineLarge,
@@ -121,6 +121,9 @@ fun IntroScreenD() {
                 .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 12.dp)
         )
+
+        Spacer(modifier = Modifier.height(30.dp))
+
     }
 }
 

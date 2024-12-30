@@ -4,6 +4,8 @@ import android.content.Context
 
 object DonorDetails {
 
+    var isFirstLogin = false
+
     private const val PREFS_NAME = "FoodDonation"
 
     fun saveDonorStatus(context: Context, value: Boolean) {

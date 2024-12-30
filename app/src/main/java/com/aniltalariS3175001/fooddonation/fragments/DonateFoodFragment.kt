@@ -76,9 +76,13 @@ fun DonateFoodFragmentP() {
 fun FoodType() {
 
     val context = LocalContext.current
+
     var errorMessage by remember { mutableStateOf("") }
 
     var foodType by remember { mutableStateOf("Select") }
+    var pickupPlace by remember { mutableStateOf("Select") }
+    var preferredTime by remember { mutableStateOf("Select") }
+
 
     var quantity by remember { mutableStateOf("") }
     var expirationDate by remember { mutableStateOf("") }
@@ -132,10 +136,41 @@ fun FoodType() {
                 .fillMaxSize()
         )
         {
-
-
             Spacer(modifier = Modifier.height(16.dp))
 
+            PickupWhereDropDown(
+                pickupwhere = listOf(
+                    "Middlesbrough, United Kingdom",
+                    "Billingham, United Kingdom",
+                    "Thornaby, United Kingdom",
+                    "Stockton-on-Tees, United Kingdom",
+                    "Redcar, United Kingdom",
+                    "Hartlepool, United Kingdom",
+                    "Darlington, United Kingdom",
+                    "Newton Aycliffe,UnitedKingdom",
+                ),
+                selectedpickupplace = pickupPlace,
+                onpickupplaceSelected = { pickupPlace = it },
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            FoodItemsDropDown(
+                foodItems = listOf(
+                    "10 AM to 11 AM",
+                    "11 AM to 12 PM",
+                    "12 PM to 1 PM",
+                    "1 PM to 2 PM",
+                    "5 PM to 6 PM",
+                    "7 PM to 8 PM",
+                    "8 PM to 9 PM"
+                ),
+                selectedFoodItem = preferredTime,
+                onFoodItemSelected = { preferredTime = it },
+                "Select Preferred Time"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
 
             FoodItemsDropDown(
@@ -154,10 +189,11 @@ fun FoodType() {
                     "Nutmeg"
                 ),
                 selectedFoodItem = foodType,
-                onFoodItemSelected = { foodType = it }
+                onFoodItemSelected = { foodType = it },
+                "Select Food Item"
             )
 
-
+            Spacer(modifier = Modifier.height(8.dp))
 
 
             // Quantity input
@@ -323,7 +359,8 @@ fun FoodType() {
 fun FoodItemsDropDown(
     foodItems: List<String>,
     selectedFoodItem: String,
-    onFoodItemSelected: (String) -> Unit
+    onFoodItemSelected: (String) -> Unit,
+    label: String = "Select Item"
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -332,12 +369,13 @@ fun FoodItemsDropDown(
         onExpandedChange = { expanded = !expanded },
         modifier = Modifier
             .fillMaxWidth()
+            .background(Color.Transparent)
     ) {
         TextField(
             value = selectedFoodItem,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Select Food Item") },
+            label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor()
@@ -347,7 +385,9 @@ fun FoodItemsDropDown(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
 
         ) {
             foodItems.forEach { option ->
@@ -364,36 +404,85 @@ fun FoodItemsDropDown(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PickupWhereDropDown(
+    pickupwhere: List<String>,
+    selectedpickupplace: String,
+    onpickupplaceSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Transparent)
+    ) {
+        TextField(
+            value = selectedpickupplace,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Select Pickup Place") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+
+        ) {
+            pickupwhere.forEach { option ->
+                DropdownMenuItem(
+                    onClick = {
+                        onpickupplaceSelected(option)
+                        expanded = false
+                    },
+                    text = { Text(option) }
+                )
+            }
+        }
+    }
+}
+
+
 private fun saveFoodToDB(foodData: FoodData, context: Context) {
 
-        val db = FirebaseDatabase.getInstance()
-        val ref = db.getReference("Donations")
+    val db = FirebaseDatabase.getInstance()
+    val ref = db.getReference("Donations")
 
-        val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-        val orderId = dateFormat.format(Date())
+    val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+    val orderId = dateFormat.format(Date())
 
-        ref.child(foodData.userMail.replace(".", ",")).child(orderId).setValue(foodData)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
+    ref.child(foodData.userMail.replace(".", ",")).child(orderId).setValue(foodData)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
 
 
-                    Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(
-                        context,
-                        "User Registration Failed: ${task.exception?.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            .addOnFailureListener { exception ->
+                Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show()
+            } else {
                 Toast.makeText(
                     context,
-                    "User Registration Failed: ${exception.message}",
+                    "User Registration Failed: ${task.exception?.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-    }
+        }
+        .addOnFailureListener { exception ->
+            Toast.makeText(
+                context,
+                "User Registration Failed: ${exception.message}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}
 
 
 
