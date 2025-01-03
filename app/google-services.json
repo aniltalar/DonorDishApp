@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "50745213497",
+    "firebase_url": "https://donordish-6a4c9-default-rtdb.firebaseio.com",
     "project_id": "donordish-6a4c9",
     "storage_bucket": "donordish-6a4c9.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:50745213497:android:4b50244f52ea4fc72243e8",
+        "mobilesdk_app_id": "1:50745213497:android:0b8ced633f933bb62243e8",
         "android_client_info": {
-          "package_name": "com.aniltalariS3175001.fooddonation"
+          "package_name": "com.fooddonation.aniltalariS3175001"
         }
       },
       "oauth_client": [],

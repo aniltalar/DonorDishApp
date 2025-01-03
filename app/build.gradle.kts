@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.aniltalariS3175001.fooddonation"
+    namespace = "com.fooddonation.aniltalariS3175001"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.aniltalariS3175001.fooddonation"
+        applicationId = "com.fooddonation.aniltalariS3175001"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
