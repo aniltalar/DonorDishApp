@@ -57,12 +57,12 @@ class AccountAccessActivity : ComponentActivity() {
 
 @Composable
 fun AccountAccessActivityScreen() {
-    var email by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val passwordVisible by remember { mutableStateOf(false) }
+    var donorMail by remember { mutableStateOf("") }
+    var donorMistake by remember { mutableStateOf("") }
+    var donorPassCode by remember { mutableStateOf("") }
+    val passCodeVisible by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current as Activity
+    val activityContext = LocalContext.current as Activity
 
     Column(
         modifier = Modifier
@@ -106,8 +106,8 @@ fun AccountAccessActivityScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         BasicTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = donorMail,
+            onValueChange = { donorMail = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -121,7 +121,7 @@ fun AccountAccessActivityScreen() {
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    if (email.isEmpty()) {
+                    if (donorMail.isEmpty()) {
                         Text(text = "Email", color = Color.Gray)
                     }
                     innerTextField()
@@ -130,14 +130,14 @@ fun AccountAccessActivityScreen() {
         )
 
         BasicTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = donorPassCode,
+            onValueChange = { donorPassCode = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .height(50.dp),
             singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (passCodeVisible) VisualTransformation.None else PasswordVisualTransformation(),
             decorationBox = { innerTextField ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -147,7 +147,7 @@ fun AccountAccessActivityScreen() {
                         .fillMaxSize()
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        if (password.isEmpty()) {
+                        if (donorPassCode.isEmpty()) {
                             Text(text = "Password", color = Color.Gray)
                         }
                         innerTextField()
@@ -158,9 +158,9 @@ fun AccountAccessActivityScreen() {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        if (errorMessage.isNotEmpty()) {
+        if (donorMistake.isNotEmpty()) {
             Text(
-                text = errorMessage,
+                text = donorMistake,
                 color = Color.Red,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -169,18 +169,18 @@ fun AccountAccessActivityScreen() {
         Button(
             onClick = {
                 when {
-                    email.isBlank() -> {
-                        errorMessage = "Please enter your email."
+                    donorMail.isBlank() -> {
+                        donorMistake = "Please enter your email."
                     }
-                    password.isBlank() -> {
-                        errorMessage = "Please enter your password."
+                    donorPassCode.isBlank() -> {
+                        donorMistake = "Please enter your password."
                     }
                     else -> {
-                        errorMessage = ""
+                        donorMistake = ""
                         val donorData = DonorData(
-                            donorEmail = email,
-                            donorPassword = password)
-                        checkLoginDetails(donorData.donorEmail,donorData.donorPassword,context)
+                            donorEmail = donorMail,
+                            donorPassword = donorPassCode)
+                        checkLoginDetails(donorData.donorEmail,donorData.donorPassword,activityContext)
                     }
                 }
 
@@ -210,8 +210,8 @@ fun AccountAccessActivityScreen() {
                 text = " Sign up",
                 color = Color(0xFF5D3FD3),
                 modifier = Modifier.clickable {
-                    context.startActivity(Intent(context, SetupAccountActivity::class.java))
-                    context.finish()
+                    activityContext.startActivity(Intent(activityContext, SetupAccountActivity::class.java))
+                    activityContext.finish()
                 },
                 style = MaterialTheme.typography.titleMedium
             )

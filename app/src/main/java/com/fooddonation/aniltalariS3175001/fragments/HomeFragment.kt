@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
@@ -53,7 +54,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 @Composable
 fun FoodDonationHomeScreen() {
 
-    val context = LocalContext.current
+    val activityContext = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -91,7 +92,7 @@ fun FoodDonationHomeScreen() {
             ) {
                 Column {
                     Image(
-                        painter = painterResource(id = R.drawable.dropoff_map),
+                        painter = painterResource(id = R.drawable.donationfood),
                         contentDescription = "Map",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -104,15 +105,19 @@ fun FoodDonationHomeScreen() {
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "Find a Drop-Off Location",
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Donor Dish App",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Find food drop-off locations near you and make food donations for those in need.",
-                            fontSize = 14.sp,
-                            color = Color.Gray
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "By Anil Talari",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -132,12 +137,22 @@ fun FoodDonationHomeScreen() {
                             when (title) {
                                 "FAQ" -> {
                                     SelectedItem.selectedOption=0
-                                    context.startActivity(Intent(context, FAQActivity::class.java))
+                                    activityContext.startActivity(Intent(activityContext, FAQActivity::class.java))
                                 }
 
                                 "Acceptable Food" -> {
                                     SelectedItem.selectedOption=1
-                                    context.startActivity(Intent(context, FAQActivity::class.java))
+                                    activityContext.startActivity(Intent(activityContext, FAQActivity::class.java))
+                                }
+
+                                "Food Handling Guidelines" -> {
+                                    SelectedItem.selectedOption=2
+                                    activityContext.startActivity(Intent(activityContext, FAQActivity::class.java))
+                                }
+
+                                "Contact Us" -> {
+                                    SelectedItem.selectedOption=3
+                                    activityContext.startActivity(Intent(activityContext, FAQActivity::class.java))
                                 }
                             }
                         },
@@ -186,7 +201,7 @@ fun FoodDonationHomeScreen() {
                         thickness = 1.dp,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    ResourceItem("NFood Handling Guidelines")
+                    ResourceItem("Food Handling Guidelines")
                     Divider(
                         color = Color.Black,
                         thickness = 1.dp,

@@ -1,10 +1,21 @@
 package com.fooddonation.aniltalariS3175001.fragments
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +24,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
@@ -36,14 +50,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import coil.compose.rememberAsyncImagePainter
 import com.fooddonation.aniltalariS3175001.DonorDetails
 import com.fooddonation.aniltalariS3175001.R
 import com.fooddonation.aniltalariS3175001.ui.theme.FoodDonationTheme
 import com.google.firebase.database.FirebaseDatabase
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -72,7 +92,7 @@ fun DonateFoodFragmentP() {
 @Composable
 fun FoodType() {
 
-    val context = LocalContext.current
+    val activityContext = LocalContext.current
 
     var errorMessage by remember { mutableStateOf("") }
 
@@ -87,7 +107,7 @@ fun FoodType() {
 
     val calendar = Calendar.getInstance()
     val expirationDatePickerDialog = android.app.DatePickerDialog(
-        context,
+        activityContext,
         { _, year, month, dayOfMonth ->
             expirationDate = "$dayOfMonth/${month + 1}/$year"
         },
@@ -97,7 +117,7 @@ fun FoodType() {
     )
 
     val pickupDatePickerDialog = android.app.DatePickerDialog(
-        context,
+        activityContext,
         { _, year, month, dayOfMonth ->
             pickupDate = "$dayOfMonth/${month + 1}/$year"
         },
@@ -128,8 +148,8 @@ fun FoodType() {
         Column(
             modifier = Modifier
                 .padding(16.dp)
-
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         )
         {
             Spacer(modifier = Modifier.height(16.dp))
@@ -285,7 +305,18 @@ fun FoodType() {
                 )
             }
 
+            CaptureImageExample()
 
+//            Image(
+//                painter = painterResource(id = R.drawable.ic_add_image), contentDescription = "Food",
+//                modifier = Modifier
+//                    .width(100.dp)
+//                    .height(100.dp)
+//                    .align(Alignment.CenterHorizontally)
+//                    .clickable {
+//                        CaptureImageExample()
+//                    }
+//            )
 
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -325,9 +356,13 @@ fun FoodType() {
                                 expirationDate = expirationDate,
                                 pickUpDate = pickupDate,
                                 status = "Pending",
-                                userMail = DonorDetails.getDonorEmail(context)!!
+                                userMail = DonorDetails.getDonorEmail(activityContext)!!
                             )
-                            saveFoodToDB(foodData, context)
+                            saveFoodToDBWithBase64Image(
+                                foodData,
+                                SelectedImage.selImageUri,
+                                activityContext
+                            )
 
                         }
                     }
@@ -449,7 +484,7 @@ fun PickupWhereDropDown(
 }
 
 
-private fun saveFoodToDB(foodData: FoodData, context: Context) {
+private fun saveFoodToDBOld(foodData: FoodData, activityContext: Context) {
 
     val fireDB = FirebaseDatabase.getInstance()
     val databaseRef = fireDB.getReference("Donations")
@@ -462,10 +497,10 @@ private fun saveFoodToDB(foodData: FoodData, context: Context) {
             if (task.isSuccessful) {
 
 
-                Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activityContext, "Added Successfully", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(
-                    context,
+                    activityContext,
                     "User Registration Failed: ${task.exception?.message}",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -473,13 +508,133 @@ private fun saveFoodToDB(foodData: FoodData, context: Context) {
         }
         .addOnFailureListener { exception ->
             Toast.makeText(
-                context,
+                activityContext,
                 "User Registration Failed: ${exception.message}",
                 Toast.LENGTH_SHORT
             ).show()
         }
 }
 
+private fun saveFoodToDBWithBase64Image(foodData: FoodData, imageUri: Uri, activityContext: Context) {
+    val fireDB = FirebaseDatabase.getInstance()
+    val databaseRef = fireDB.getReference("Donations")
 
+    val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+    val orderId = dateFormat.format(Date())
+    val userNode = foodData.userMail.replace(".", ",")
+
+    try {
+        val inputStream = activityContext.contentResolver.openInputStream(imageUri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        val base64Image = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
+
+        val updatedFoodData = foodData.copy(imageUrl = base64Image)
+
+        databaseRef.child(userNode).child(orderId).setValue(updatedFoodData)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(activityContext, "Added Successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(
+                        activityContext,
+                        "Failed to add data: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    activityContext,
+                    "Data save failed: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    } catch (e: Exception) {
+        Toast.makeText(activityContext, "Image conversion failed: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+}
+
+
+@Composable
+fun CaptureImageExample() {
+    val activityContext = LocalContext.current
+
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val captureImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                imageUri = getImageUri(activityContext)
+                SelectedImage.selImageUri = imageUri as Uri
+
+//                Toast.makeText(activityContext, "Image Captured", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(activityContext, "Capture Failed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast.makeText(activityContext, "Permission Granted", Toast.LENGTH_SHORT).show()
+                captureImageLauncher.launch(getImageUri(activityContext)) // Launch the camera
+            } else {
+                Toast.makeText(activityContext, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = if (imageUri != null) {
+                rememberAsyncImagePainter(model = imageUri)
+            } else {
+                painterResource(id = R.drawable.ic_add_image)
+            },
+            contentDescription = "Captured Image",
+            modifier = Modifier
+                .width(100.dp)
+                .height(100.dp)
+                .clickable {
+                    if (ContextCompat.checkSelfPermission(
+                            activityContext,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        captureImageLauncher.launch(getImageUri(activityContext))
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (imageUri == null) {
+            Text(text = "Tap the image to capture")
+        }
+    }
+}
+
+fun getImageUri(activityContext: Context): Uri {
+    val file = File(activityContext.filesDir, "captured_image.jpg")
+    return FileProvider.getUriForFile(
+        activityContext,
+        "${activityContext.packageName}.fileprovider",
+        file
+    )
+}
+
+
+object SelectedImage {
+    lateinit var selImageUri: Uri
+}
 
 

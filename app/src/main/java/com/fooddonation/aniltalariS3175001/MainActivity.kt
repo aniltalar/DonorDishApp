@@ -47,29 +47,29 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun IntroScreen() {
-    var showSplash by remember { mutableStateOf(true) }
+    var isSplashVisible by remember { mutableStateOf(true) }
 
-    val context = LocalContext.current as Activity
+    val activityContext = LocalContext.current as Activity
 
     LaunchedEffect(Unit) {
         delay(3000)
-        showSplash = false
+        isSplashVisible = false
 
     }
 
-        if (showSplash) {
+        if (isSplashVisible) {
             IntroScreenD()
         } else {
-            val DonorStatus = DonorDetails.getDonorStatus(context)
+            val DonorStatus = DonorDetails.getDonorStatus(activityContext)
 
             if (DonorStatus) {
 
 
-                context.startActivity(Intent(context, ContainerActivity::class.java))
-                context.finish()
+                activityContext.startActivity(Intent(activityContext, ContainerActivity::class.java))
+                activityContext.finish()
             } else {
-                context.startActivity(Intent(context, AccountAccessActivity::class.java))
-                context.finish()
+                activityContext.startActivity(Intent(activityContext, AccountAccessActivity::class.java))
+                activityContext.finish()
             }
         }
 

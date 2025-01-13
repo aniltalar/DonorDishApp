@@ -25,5 +25,7 @@ data class FoodData(
     var expirationDate: String = "",
     var pickUpDate: String = "",
     var status: String = "",
-    var userMail: String = "user1@gmail.com"
+    var userMail: String = "user1@gmail.com",
+    var imageUrl: String = ""
+
 )

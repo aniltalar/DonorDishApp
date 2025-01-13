@@ -40,7 +40,7 @@ class TutorialActivity : ComponentActivity() {
 
 @Composable
 fun TutorialScreen() {
-    val context = LocalContext.current
+    val activityContext = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -87,8 +87,8 @@ fun TutorialScreen() {
                 .background(Color.Blue)
                 .padding(vertical = 6.dp, horizontal = 16.dp) // Padding inside the bar
                 .clickable {
-                    context.startActivity(Intent(context, ContainerActivity::class.java))
-                    (context as Activity).finish()
+                    activityContext.startActivity(Intent(activityContext, ContainerActivity::class.java))
+                    (activityContext as Activity).finish()
                 }
         ) {
             Text(

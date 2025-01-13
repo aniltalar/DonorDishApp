@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.database.FirebaseDatabase
 
 class SetupAccountActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,7 +64,7 @@ fun SetupAccountActivityScreen() {
 
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current as Activity
+    val activityContext = LocalContext.current as Activity
 
     Column(
         modifier = Modifier
@@ -226,21 +227,21 @@ fun SetupAccountActivityScreen() {
             onClick = {
 
                 registrationIssues = validateInputs(
-                    donorFullName.isBlank() to "Please enter your full name.",
-                    donorEmail.isBlank() to "Please enter your email.",
-                    donorPassword.isBlank() to "Please enter your password.",
-                    donorConfirmPassword.isBlank() to "Please confirm your password.",
-                    (donorPassword != donorConfirmPassword) to "Passwords do not match"
+                    donorFullName.isBlank() to "Donor FullName Missing",
+                    donorEmail.isBlank() to "Donor Mail Missing",
+                    donorPassword.isBlank() to "Donor Password Missing",
+                    donorConfirmPassword.isBlank() to "Confirm your password",
+                    (donorPassword != donorConfirmPassword) to "Both Passwords are different"
                 )
 
-                if (registrationIssues.equals("Fields Validated")) {
+                if (registrationIssues.equals("Registration Sucess")) {
                     val donorData = DonorData(
                         donorFullName = donorFullName,
                         donorEmail = donorEmail,
                         donorPassword = donorPassword,
 
                         )
-                    saveDonorData(donorData, context)
+                    saveDonorData(donorData, activityContext)
                 }
 
 
@@ -270,7 +271,7 @@ fun SetupAccountActivityScreen() {
                 text = " Login",
                 color = Color(0xFF5D3FD3),
                 modifier = Modifier.clickable {
-                    context.startActivity(Intent(context, AccountAccessActivity::class.java))
+                    activityContext.startActivity(Intent(activityContext, AccountAccessActivity::class.java))
                     //  context.finish()
                 },
                 style = MaterialTheme.typography.titleMedium
@@ -280,7 +281,7 @@ fun SetupAccountActivityScreen() {
 }
 
 fun validateInputs(vararg conditions: Pair<Boolean, String>): String {
-    return conditions.firstOrNull { it.first }?.second ?: "Fields Validated"
+    return conditions.firstOrNull { it.first }?.second ?: "Registration Sucess"
 }
 
 private fun saveDonorData(donorData: DonorData, context: Activity) {
